@@ -1,0 +1,4 @@
+nick1: Hi
+nick2: Heloo
+nick1: How are u
+nick2: I'm fine

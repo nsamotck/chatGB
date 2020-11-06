@@ -101,7 +101,7 @@ public class ClientHandler {
                     String[] tokens = str.split(" ");
                     String newNick = AuthService.getNickByLoginAndPass(tokens[1], tokens[2]);
                     if (newNick != null && !(server.isNickOccupied(newNick))) {
-                        sendMsg("/authOk");
+                        sendMsg(String.format("/authOk %s", newNick));
                         nick = newNick;
                         server.subscribe(ClientHandler.this);
                         break;
