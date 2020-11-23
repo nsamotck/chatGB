@@ -9,10 +9,10 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 
 public class Controller {
@@ -40,6 +40,8 @@ public class Controller {
     @FXML
     ListView<String> clientList;
 
+    private String nick;
+    private HistoryHandler historyHandler;
     Socket socket;
     DataInputStream in;
     DataOutputStream out;
@@ -48,6 +50,10 @@ public class Controller {
     final int PORT = 8189;
 
     private boolean isAuthorized;
+
+    public String getNick() {
+        return nick;
+    }
 
     public void setAuthorized(boolean isAuthorized) {
         this.isAuthorized = isAuthorized;
@@ -82,6 +88,11 @@ public class Controller {
                             String str = in.readUTF();
                             if (str.startsWith("/authOk")) {
                                 setAuthorized(true);
+                                //--------------------------
+                                nick = str.split(" ")[1];
+                                historyHandler = new HistoryHandler(nick, in);
+                                textArea.appendText(historyHandler.getLast100LinesFromHistory());
+                                //--------------------------
                                 break;
                             } else {
                                 textArea.appendText(str + "\n");
@@ -111,6 +122,7 @@ public class Controller {
                                 }
                             } else {
                                 textArea.appendText(str + "\n");
+                                historyHandler.getWriter().println(str);
                             }
                         }
                     } catch (IOException e) {
@@ -118,6 +130,7 @@ public class Controller {
                     } finally {
                         try {
                             socket.close();
+                            historyHandler.close();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
